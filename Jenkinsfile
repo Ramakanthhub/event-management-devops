@@ -64,16 +64,18 @@ pipeline {
             }
         }
 
-        stage('Selenium Browser Tests') {
-            steps {
-                bat '''
-                    set BASE_URL=http://127.0.0.1:5000
-                    set SELENIUM_URL=http://127.0.0.1:4444/wd/hub
+       
+stage('Selenium Browser Tests') {
+    steps {
+        bat '''
+            set BASE_URL=http://web:5000
+            set SELENIUM_URL=http://127.0.0.1:4444/wd/hub
 
-                    .jenkins-venv\\Scripts\\python.exe -m unittest discover -s tests -v
-                '''
-            }
-        }
+            .jenkins-venv\\Scripts\\python.exe -m unittest discover -s tests -v
+        '''
+    }
+}
+
     }
 
     post {
