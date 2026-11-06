@@ -1,0 +1,23 @@
+services:
+  web:
+    build: .
+    container_name: devops-web
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_PATH=/data/app.db
+      - SECRET_KEY=change-this-for-real-deployment
+    volumes:
+      - appdata:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  selenium:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+    shm_size: 2gb
+volumes:
+  appdata:

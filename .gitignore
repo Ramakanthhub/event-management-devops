@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+events.db
+events_backup.db
+.env
+test-reports/
