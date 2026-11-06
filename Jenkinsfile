@@ -24,13 +24,16 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat '''
-                    py -3 -m venv .jenkins-venv
+                    if not exist .jenkins-venv (
+                        py -3 -m venv .jenkins-venv
+                    )
+
                     .jenkins-venv\\Scripts\\python.exe -m pip install --upgrade pip
 
                     if exist requirements.txt (
                         .jenkins-venv\\Scripts\\python.exe -m pip install -r requirements.txt
                     ) else (
-                        .jenkins-venv\\Scripts\\python.exe -m pip install Flask selenium
+                        .jenkins-venv\\Scripts\\python.exe -m pip install Flask selenium unittest-xml-reporting
                     )
                 '''
             }
@@ -64,18 +67,25 @@ pipeline {
             }
         }
 
-       
-stage('Selenium Browser Tests') {
-    steps {
-        bat '''
-            set BASE_URL=http://web:5000
-            set SELENIUM_URL=http://127.0.0.1:4444/wd/hub
+        stage('Selenium Browser Tests') {
+            steps {
+                bat '''
+                    if exist reports rmdir /s /q reports
+                    mkdir reports
 
-            .jenkins-venv\\Scripts\\python.exe -m unittest discover -s tests -v
-        '''
-    }
-}
+                    set BASE_URL=http://web:5000
+                    set SELENIUM_URL=http://127.0.0.1:4444/wd/hub
 
+                    .jenkins-venv\\Scripts\\python.exe -m xmlrunner discover -s tests -v -o reports
+                '''
+            }
+
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'reports/*.xml'
+                }
+            }
+        }
     }
 
     post {
